@@ -1,36 +1,26 @@
-FROM alpine:edge
+FROM alpine:3.11
 
-# Add project source
-WORKDIR /usr/src/musicbot
-COPY . ./
+WORKDIR /home/discord/musicbot
 
-# Install dependencies
+# Install packages
 RUN apk update \
 && apk add --no-cache \
-  ca-certificates \
-  ffmpeg \
-  opus \
-  python3 \
-  libsodium-dev \
-\
+  ca-certificates ffmpeg opus python3 libsodium-dev \
 # Install build dependencies
 && apk add --no-cache --virtual .build-deps \
-  gcc \
-  git \
-  libffi-dev \
-  make \
-  musl-dev \
-  python3-dev \
-\
+  gcc git libffi-dev make musl-dev python3-dev
+
 # Install pip dependencies
-&& pip3 install --no-cache-dir -r requirements.txt \
-&& pip3 install --upgrade --force-reinstall --version websockets==4.0.1 \
-\
-# Clean up build dependencies
-&& apk del .build-deps
+ADD requirements.txt ./
+RUN pip3 install --no-cache-dir -r requirements.txt \
+  # Clean up build dependencies
+  && apk del .build-deps
+
+# Add the rest of the source code
+COPY . ./
 
 # Create volume for mapping the config
-VOLUME /usr/src/musicbot/config
+VOLUME /home/discord/musicbot/config
 
 ENV APP_ENV=docker
 
