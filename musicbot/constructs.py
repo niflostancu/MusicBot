@@ -33,7 +33,7 @@ class SkipState:
 
     def add_skipper(self, skipper, msg):
         self.skippers.add(skipper)
-        self.skip_msgs.add(msg)
+        self.skip_msgs.add(msg.jump_url)
         return self.skip_count
 
 

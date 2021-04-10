@@ -1,5 +1,6 @@
 pynacl
 websockets
+aiohttp
 discord.py[voice]
 pip
 youtube_dl
