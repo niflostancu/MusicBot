@@ -1,27 +1,29 @@
 FROM alpine:3.11
 
-WORKDIR /home/discord/musicbot
+ENV BOT_UID=999
 
 # Install packages
-RUN apk update \
-&& apk add --no-cache \
-  ca-certificates ffmpeg opus python3 libsodium-dev \
-# Install build dependencies
-&& apk add --no-cache --virtual .build-deps \
-  gcc git libffi-dev make musl-dev python3-dev
+RUN apk update && apk add --no-cache \
+  bash coreutils shadow ca-certificates ffmpeg opus python3 libsodium-dev
+# Install build dependencies \
+RUN apk add --no-cache --virtual .build-deps \
+    gcc git libffi-dev make musl-dev python3-dev
+
+# Create user and work from home from now on ;) 
+RUN useradd -u $BOT_UID -s /bin/bash -m discord
+USER discord
+WORKDIR /home/discord
 
 # Install pip dependencies
 ADD requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt \
-  # Clean up build dependencies
-  && apk del .build-deps
+RUN pip3 install --user --no-cache-dir -r requirements.txt
 
 # Add the rest of the source code
 COPY . ./
-
-# Create volume for mapping the config
-VOLUME /home/discord/musicbot/config
+RUN mv ./config ./config.initial
 
 ENV APP_ENV=docker
 
-ENTRYPOINT ["python3", "dockerentry.py"]
+ENTRYPOINT ["/home/discord/dockerentry.sh"]
+CMD ["./run.py"]
+
