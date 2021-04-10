@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "musicbot.fullname" . }}
+  labels:
+    {{- include "musicbot.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "musicbot.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "musicbot.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- if .Values.selfUrlPath }}
+            - {name: "SELF_URL_PATH", value: {{ .Values.selfUrlPath | quote }} }
+          {{- end }}
+          {{- if or .Values.extraVolumeMounts .Values.configVolume.enabled }}
+          volumeMounts:
+          {{- if .Values.configVolume.enabled }}
+          - name: config
+            mountPath: {{ include "musicbot.mountpoint" . }}
+            {{- if .Values.configVolume.subPath }}
+            subPath: {{ .Values.configVolume.subPath }}
+            {{- end }}
+{{- if .Values.extraVolumeMounts }}
+{{ toYaml .Values.extraVolumeMounts | indent 10 }}
+{{- end }}
+          {{- end }}{{ end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if or .Values.extraVolumes .Values.configVolume.enabled }}
+      volumes:
+      {{- if .Values.configVolume.enabled }}
+      - name: config
+      {{- if .Values.configVolume.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.configVolume.existingClaim }}
+      {{- else if .Values.configVolume.useConfigMap }}
+        configMap:
+          name: {{ .Values.configVolume.useConfigMap }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}
+      {{- end -}}
+{{- if .Values.extraVolumes }}
+{{ toYaml .Values.extraVolumes | indent 6 }}
+{{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

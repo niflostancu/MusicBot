@@ -1,0 +1,46 @@
+# Default values for MusicBot.
+
+replicaCount: 1
+
+image:
+  repository: niflostancu/discord-musicbot
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets: []
+name: ""
+fullname: ""
+
+podSecurityContext: {}
+securityContext: {}
+
+# config volume (for persistent configuration)
+configVolume:
+  enabled: false
+  useConfigMap: 'musicbot'
+  readOnly: true
+  # subPath: 'discord-config'
+  annotations: {}
+
+extraVolumes: {}
+  # - name: plugins
+  #   emptyDir: {}
+extraVolumeMounts: {}
+  # - name: extras
+  #   mountPath: /var/extras
+  #   readOnly: true
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+

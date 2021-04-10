@@ -1,0 +1,5 @@
+MusicBot installed!
+Check the logs with:
+
+  kubectl logs -n {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "musicbot.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" --tail=20 -f
+

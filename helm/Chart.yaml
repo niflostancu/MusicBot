@@ -1,0 +1,14 @@
+apiVersion: v2
+name: discord-musicbot
+description: Music bot for Discord
+type: application
+
+version: 0.1
+appVersion: git
+
+sources:
+  - https://github.com/niflostancu/discord-musicbot
+maintainers:
+  - name: Stancu Florin
+    email: niflostancu@gmail.com
+
